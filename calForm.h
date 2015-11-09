@@ -12,6 +12,7 @@
 #include "keyTest.h"
 #include "netClient.h"
 #include "netServer.h"
+#include "followForm.h"
 using namespace Calculator;
 
 
@@ -671,6 +672,7 @@ namespace Calculator{
 		kt1->Text = "kt1";
 		kt1->Show();
 		*/
+
 		netClient^ c1 = gcnew netClient();
 		netClient^ c2 = gcnew netClient();
 		netClient^ c3 = gcnew netClient();
@@ -683,10 +685,12 @@ namespace Calculator{
 		c2->Text = "c2";
 		c3->Text = "c3";
 		s1->Text = "s1";
+		s1->StartPosition = FormStartPosition::CenterScreen;
 		c1->Show();
 		c3->Show();
 		c2->Show();
 		s1->Show();
+		
 		//this->Hide();
 	//	this->tb_calculateWindow->Text = "";
 	}

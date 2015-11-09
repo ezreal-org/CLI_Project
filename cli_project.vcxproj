@@ -150,6 +150,9 @@
     <ClInclude Include="childForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="followForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="jayce.h" />
     <ClInclude Include="calForm.h">
       <FileType>CppForm</FileType>
@@ -171,6 +174,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="childForm.resx">
       <DependentUpon>childForm.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="followForm.resx">
+      <DependentUpon>followForm.h</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="keyTest.resx">
       <DependentUpon>keyTest.h</DependentUpon>

@@ -1,6 +1,6 @@
 #pragma once
 #include "jayce.h"
-
+#include "followForm.h"
 namespace Calculator {
 
 	using namespace System;
@@ -84,6 +84,9 @@ namespace Calculator {
 	private: System::Windows::Forms::Button^  btn_c3;
 	private: System::Windows::Forms::Button^  btn_c2;
 	private: System::Windows::Forms::Button^  btn_all;
+	private: System::Windows::Forms::Label^  label1;
+
+
 
 
 
@@ -110,6 +113,7 @@ namespace Calculator {
 			this->btn_c3 = (gcnew System::Windows::Forms::Button());
 			this->btn_c2 = (gcnew System::Windows::Forms::Button());
 			this->btn_all = (gcnew System::Windows::Forms::Button());
+			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// textBox1
@@ -193,11 +197,21 @@ namespace Calculator {
 			this->btn_all->UseVisualStyleBackColor = true;
 			this->btn_all->Click += gcnew System::EventHandler(this, &netServer::btn_all_Click);
 			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(400, 117);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(41, 12);
+			this->label1->TabIndex = 4;
+			this->label1->Text = L"label1";
+			// 
 			// netServer
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(351, 274);
+			this->ClientSize = System::Drawing::Size(354, 274);
+			this->Controls->Add(this->label1);
 			this->Controls->Add(this->btn_all);
 			this->Controls->Add(this->btn_c2);
 			this->Controls->Add(this->btn_c3);
@@ -209,6 +223,7 @@ namespace Calculator {
 			this->Name = L"netServer";
 			this->Text = L"netServer";
 			this->Load += gcnew System::EventHandler(this, &netServer::netServer_Load);
+			this->LocationChanged += gcnew System::EventHandler(this, &netServer::netServer_LocationChanged);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -333,6 +348,7 @@ namespace Calculator {
 			{
 				pthis->timeCx = 0;
 				pthis->Text = "netServer";
+				pthis->ClientSize = System::Drawing::Size(370, 313);
 			}
 			pthis->timeCx--;
 			Sleep(1000);
@@ -501,7 +517,6 @@ namespace Calculator {
 			}
 		}
 		
-		
 		this->textBox2->Text = ""; 
 	}
 private: System::Void btn_c1_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -541,6 +556,36 @@ private: System::Void netServer_Load(System::Object^  sender, System::EventArgs^
 private: System::Void textBox2_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 	timeCx = 1; //1秒没输入则提示没有输入
 	this->Text = "正在输入...";
+	this->ClientSize = System::Drawing::Size(543, 313);
+	this->label1->Text = "收到反馈信息！";
+}
+
+private: System::Void netServer_LocationChanged(System::Object^  sender, System::EventArgs^  e) {
+	static bool firstCall = true;
+	if (firstCall)
+	{
+		followForm^ fF = gcnew followForm();
+		fF->Name = "fF";
+		fF->Text = "fF";
+		fF->Location = Point(this->Location.X - fF->Size.Width + 10, this->Location.Y);
+		fF->StartPosition = FormStartPosition::Manual;
+		fF->Show();
+		fF->Visible = false;
+		firstCall = false;
+		return;
+	}
+	bool needShow;
+	if (this->Text == "netServer")
+		needShow = false;
+	else
+		needShow = true;
+	if (needShow)
+	{
+		Application::OpenForms["fF"]->Location = Point(this->Location.X - 300 + 10, this->Location.Y);
+		Application::OpenForms["fF"]->Visible = true;
+	}
+	else
+		Application::OpenForms["fF"]->Visible = false;
 }
 };
 
