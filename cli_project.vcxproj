@@ -143,7 +143,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="calculator.cpp" />
     <ClCompile Include="calForm.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +186,9 @@
     <EmbeddedResource Include="netServer.resx">
       <DependentUpon>netServer.h</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\Cpp\CalDLL\Debug\CalDLL.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

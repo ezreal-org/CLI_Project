@@ -15,6 +15,7 @@
 #include "followForm.h"
 using namespace Calculator;
 
+extern __declspec(dllimport) string tkCalculator(string);
 
 namespace Calculator{
 

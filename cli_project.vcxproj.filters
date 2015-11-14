@@ -38,9 +38,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="calculator.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="calForm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -61,5 +58,11 @@
     <EmbeddedResource Include="netServer.resx">
       <Filter>资源文件</Filter>
     </EmbeddedResource>
+    <EmbeddedResource Include="followForm.resx">
+      <Filter>资源文件</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\Cpp\CalDLL\Debug\CalDLL.lib" />
   </ItemGroup>
 </Project>
