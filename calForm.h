@@ -13,6 +13,7 @@
 #include "netClient.h"
 #include "netServer.h"
 #include "followForm.h"
+#include "judge.h"
 using namespace Calculator;
 
 extern __declspec(dllimport) string tkCalculator(string);
@@ -27,7 +28,7 @@ namespace Calculator{
 	using namespace System::Drawing;
 	using namespace std;
 	using namespace System::Threading;
-	
+	using  wordDLL::wordCheck;
 				  /// <summary>
 				  /// Form1 ժҪ
 				  /// </summary>
@@ -692,6 +693,11 @@ namespace Calculator{
 		c2->Show();
 		s1->Show();
 		
+		judge ^j1 = gcnew judge();
+		j1->Name = "j1";
+		j1->Text = "j1";
+		j1->Show();
+	
 		//this->Hide();
 	//	this->tb_calculateWindow->Text = "";
 	}

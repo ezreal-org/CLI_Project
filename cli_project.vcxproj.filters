@@ -36,6 +36,9 @@
     <ClInclude Include="followForm.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="judge.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="calForm.cpp">

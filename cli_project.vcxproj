@@ -141,6 +141,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="wordDLL">
+      <HintPath>..\..\Cpp\vbDLL\wordDLL\bin\Debug\wordDLL.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="calForm.cpp" />
@@ -154,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="jayce.h" />
     <ClInclude Include="calForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="judge.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="keyTest.h">
@@ -176,6 +182,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="followForm.resx">
       <DependentUpon>followForm.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="judge.resx">
+      <DependentUpon>judge.h</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="keyTest.resx">
       <DependentUpon>keyTest.h</DependentUpon>
