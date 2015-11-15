@@ -1,4 +1,37 @@
 #pragma once
+#include<io.h>
+#include <vector>
+#include <string>
+
+vector<string> files;
+
+void getFiles(string path, vector<string>& files)
+{
+	//文件句柄
+	long   hFile = 0;
+	//文件信息
+	struct _finddata_t fileinfo;
+	string p;
+	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
+	{
+		do
+		{
+			//如果是目录,迭代之
+			//如果不是,加入列表
+			if ((fileinfo.attrib &  _A_SUBDIR))
+			{
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+					getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
+			}
+			else
+			{
+				if(fileinfo.name[0]!='~')
+					files.push_back(p.assign(path).append("\\").append(fileinfo.name));
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
+}
 
 namespace Calculator {
 
@@ -41,7 +74,8 @@ namespace Calculator {
 	private: System::Windows::Forms::TextBox^  textBox1;
 	private: System::Windows::Forms::TextBox^  textBox2;
 		
-
+	private: Thread^ extraThread;
+	private: int docSum;
 	private: System::Windows::Forms::Button^  btn_judge;
 	private: System::Windows::Forms::Label^  label1;
 	private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
@@ -168,6 +202,24 @@ namespace Calculator {
 
 		}
 #pragma endregion
+		
+		static void extraThreadFun(Object^ arg)
+		{
+			judge ^pthis = (judge^)arg;
+			stringstream ss;
+			string str;
+			while(1)
+			{
+				ss << (pthis->docSum- wordCheck::wdDocCx);
+				ss >> str;
+				str += " remains.";
+				ss.clear();
+				pthis->btn_judge->Text = gcnew String(str.c_str());
+				Sleep(500);//减轻cpu负担
+			}
+		
+		}
+
 	private: System::Void btn_judge_Click(System::Object^  sender, System::EventArgs^  e) {
 		this->textBox1->Enabled = false;
 		this->textBox2->Enabled = false;
@@ -175,12 +227,38 @@ namespace Calculator {
 		this->btn_judge->Enabled = false;
 		String ^ansPath = this->textBox1->Text;
 		String ^stuPath = this->textBox2->Text;
+		//考虑到逐个传入文件名invoke效率太低,创建app时间开销大
+		using namespace Runtime::InteropServices;
+		char* cstr = (char*)(Marshal::StringToHGlobalAnsi(stuPath)).ToPointer();
+		string str = cstr;
+		getFiles(str, files);
+		this->docSum = files.size();
+		
+		//为了提高体验，兼顾效率，增加线程动态显示已阅文档数
+		extraThread = gcnew Thread(gcnew ParameterizedThreadStart(judge::extraThreadFun));//带参静态成员线程函数
+		extraThread->Start(this);
+
 		wordCheck ^wc = gcnew wordCheck();
 		wc->getWordScore(ansPath, stuPath);
+		/*
+		stringstream ss;
+		for (int i = 0; i < files.size(); i++)
+		{
+			wc->getWordScore(ansPath, gcnew String(files[i].c_str()));
+			cx++;
+			ss << (files.size()-cx);
+			ss >> str;
+			str += "remain.";
+			ss.clear();
+			this->btn_judge->Text = gcnew String(str.c_str());
+		}
+		*/
 		this->btn_judge->Text = "判卷";
 		this->btn_judge->Enabled = true;
 		this->textBox1->Enabled = true;
 		this->textBox2->Enabled = true;
+		if (extraThread!=nullptr && extraThread->IsAlive)
+			extraThread->Abort();
 	}
 private: System::Void btn_brown1_Click(System::Object^  sender, System::EventArgs^  e) {
 	this->openFileDialog1->Title = "寻找答案文档";
