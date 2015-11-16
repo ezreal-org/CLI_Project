@@ -30,9 +30,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
     <CLRSupport>true</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -136,6 +137,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Reference Include="AccessSimpleDLL">
+      <HintPath>..\..\Cpp\vbDLL\AccessSimpleDLL\bin\Debug\AccessSimpleDLL.dll</HintPath>
+    </Reference>
+    <Reference Include="excelDLL">
+      <HintPath>..\..\Cpp\vbDLL\excelDLL\bin\Debug\excelDLL.dll</HintPath>
+    </Reference>
+    <Reference Include="pptDLL">
+      <HintPath>..\..\Cpp\vbDLL\pptDLL\bin\Debug\pptDLL.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />

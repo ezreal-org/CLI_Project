@@ -42,6 +42,9 @@ namespace Calculator {
 	using namespace System::Data;
 	using namespace System::Drawing;
 	using wordDLL::wordCheck;
+	using excelDLL::ExcelCheck;
+	using pptDLL::PptCheck;
+	using AccessSimpleDLL::AccessCheckSimple;
 	/// <summary>
 	/// judge 摘要
 	/// </summary>
@@ -67,6 +70,10 @@ namespace Calculator {
 			{
 				delete components;
 			}
+			if (judgeThread != nullptr && judgeThread->IsAlive)
+				judgeThread->Abort();
+			if (extraThread != nullptr &&extraThread->IsAlive)
+				extraThread->Abort();
 		}
 	private: System::Windows::Forms::Button^  btn_brown1;
 	private: System::Windows::Forms::Button^  btn_brown_directory;
@@ -75,7 +82,9 @@ namespace Calculator {
 	private: System::Windows::Forms::TextBox^  textBox2;
 		
 	private: Thread^ extraThread;
+	private: Thread^ judgeThread;
 	private: int docSum;
+	private: int typeOfjudge;
 	private: System::Windows::Forms::Button^  btn_judge;
 	private: System::Windows::Forms::Label^  label1;
 	private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
@@ -208,9 +217,32 @@ namespace Calculator {
 			judge ^pthis = (judge^)arg;
 			stringstream ss;
 			string str;
+			//考虑到逐个传入文件名invoke效率太低,创建app时间开销大
+			using namespace Runtime::InteropServices;
+			char* cstr = (char*)(Marshal::StringToHGlobalAnsi(pthis->textBox2->Text)).ToPointer();
+			string strtemp = cstr;
+			files.clear();
+			getFiles(strtemp, files);
+			pthis->docSum = files.size();
+			Sleep(2000);
 			while(1)
 			{
-				ss << (pthis->docSum- wordCheck::wdDocCx);
+				if (pthis->typeOfjudge == 1) //当前检查word文档
+				{
+					ss << (pthis->docSum - wordCheck::wdDocCx);
+				}
+				if (pthis->typeOfjudge == 2) //当前检查excel文档
+				{
+					ss << (pthis->docSum - ExcelCheck::excelDocCx);
+				}
+				if (pthis->typeOfjudge == 3) //当前检查ppt文档
+				{
+					ss << (pthis->docSum - PptCheck::pptDocCx);
+				}
+				if (pthis->typeOfjudge == 4) //当前检查access文档
+				{
+					ss << (pthis->docSum - AccessCheckSimple::accessDocCx);
+				}
 				ss >> str;
 				str += " remains.";
 				ss.clear();
@@ -219,27 +251,71 @@ namespace Calculator {
 			}
 		
 		}
+		static void judgeThreadFun(Object^ arg)
+		{
+			judge ^pthis = (judge^)arg;
+			pthis->textBox1->Enabled = false;
+			pthis->textBox2->Enabled = false;
+			pthis->btn_judge->Text = "正在判卷";
+			pthis->btn_judge->Enabled = false;
+			String ^ansPath = pthis->textBox1->Text;
+			String ^stuPath = pthis->textBox2->Text;
+
+			//识别不同文档调用不同DLL接口
+			if (ansPath->EndsWith(".docx"))
+			{
+				pthis->typeOfjudge = 1;
+				pthis->Text = "judge word";
+				wordCheck::wdDocCx = 0;
+				wordCheck ^wc = gcnew wordCheck();
+				wc->getWordScore(ansPath, stuPath);
+			}
+			if (ansPath->EndsWith(".xlsx"))
+			{
+				pthis->typeOfjudge = 2;
+				pthis->Text = "judge excel";
+				ExcelCheck::excelDocCx = 0;
+				ExcelCheck ^ec = gcnew ExcelCheck();
+				ec->getExcelScore(ansPath, stuPath);
+			}
+			if (ansPath->EndsWith(".pptx"))
+			{
+				pthis->typeOfjudge = 3;
+				pthis->Text = "judge ppt";
+				PptCheck::pptDocCx = 0;
+				PptCheck ^pc = gcnew PptCheck();
+				pc->getPPTScore(ansPath, stuPath);
+			}
+			if (ansPath->EndsWith(".accdb"))
+			{
+				pthis->typeOfjudge = 4;
+				pthis->Text = "judge access";
+				AccessCheckSimple::accessDocCx = 0;
+				AccessCheckSimple ^ac = gcnew AccessCheckSimple();
+				ac->getAccessScore(ansPath, stuPath);
+			}
+			if (pthis->extraThread != nullptr && pthis->extraThread->IsAlive)
+				pthis->extraThread->Abort();
+
+			pthis->Text = "judge";
+			pthis->btn_judge->Text = "判卷";
+			pthis->btn_judge->Enabled = true;
+			pthis->textBox1->Enabled = true;
+			pthis->textBox2->Enabled = true;
+
+			if (pthis->judgeThread != nullptr && pthis->judgeThread->IsAlive)
+				pthis->judgeThread->Abort();
+		}
 
 	private: System::Void btn_judge_Click(System::Object^  sender, System::EventArgs^  e) {
-		this->textBox1->Enabled = false;
-		this->textBox2->Enabled = false;
-		this->btn_judge->Text = "正在判卷";
-		this->btn_judge->Enabled = false;
-		String ^ansPath = this->textBox1->Text;
-		String ^stuPath = this->textBox2->Text;
-		//考虑到逐个传入文件名invoke效率太低,创建app时间开销大
-		using namespace Runtime::InteropServices;
-		char* cstr = (char*)(Marshal::StringToHGlobalAnsi(stuPath)).ToPointer();
-		string str = cstr;
-		getFiles(str, files);
-		this->docSum = files.size();
+		//让额外线程去处理判卷，防止所有界面僵死
+		judgeThread = gcnew Thread(gcnew ParameterizedThreadStart(judge::judgeThreadFun));//带参静态成员线程函数
+		judgeThread->Start(this);
 		
 		//为了提高体验，兼顾效率，增加线程动态显示已阅文档数
 		extraThread = gcnew Thread(gcnew ParameterizedThreadStart(judge::extraThreadFun));//带参静态成员线程函数
 		extraThread->Start(this);
-
-		wordCheck ^wc = gcnew wordCheck();
-		wc->getWordScore(ansPath, stuPath);
+		
 		/*
 		stringstream ss;
 		for (int i = 0; i < files.size(); i++)
@@ -253,12 +329,7 @@ namespace Calculator {
 			this->btn_judge->Text = gcnew String(str.c_str());
 		}
 		*/
-		this->btn_judge->Text = "判卷";
-		this->btn_judge->Enabled = true;
-		this->textBox1->Enabled = true;
-		this->textBox2->Enabled = true;
-		if (extraThread!=nullptr && extraThread->IsAlive)
-			extraThread->Abort();
+		
 	}
 private: System::Void btn_brown1_Click(System::Object^  sender, System::EventArgs^  e) {
 	this->openFileDialog1->Title = "寻找答案文档";
