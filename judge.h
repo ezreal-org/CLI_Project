@@ -288,11 +288,17 @@ namespace Calculator {
 			}
 			if (ansPath->EndsWith(".accdb"))
 			{
+				Sleep(1000); //让GC有足够时间完成回收
 				pthis->typeOfjudge = 4;
 				pthis->Text = "judge access";
 				AccessCheckSimple::accessDocCx = 0;
 				AccessCheckSimple ^ac = gcnew AccessCheckSimple();
 				ac->getAccessScore(ansPath, stuPath);
+
+				int generation = 0;
+				generation = GC::GetGeneration(ac);
+				GC::Collect(generation, GCCollectionMode::Forced);
+				
 			}
 			if (pthis->extraThread != nullptr && pthis->extraThread->IsAlive)
 				pthis->extraThread->Abort();
@@ -303,8 +309,9 @@ namespace Calculator {
 			pthis->textBox1->Enabled = true;
 			pthis->textBox2->Enabled = true;
 
-			if (pthis->judgeThread != nullptr && pthis->judgeThread->IsAlive)
-				pthis->judgeThread->Abort();
+			
+		//	if (pthis->judgeThread != nullptr && pthis->judgeThread->IsAlive)
+			//	pthis->judgeThread->Abort();
 		}
 
 	private: System::Void btn_judge_Click(System::Object^  sender, System::EventArgs^  e) {
