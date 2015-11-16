@@ -208,7 +208,7 @@ namespace Calculator {
 			this->Text = L"judge";
 			this->ResumeLayout(false);
 			this->PerformLayout();
-
+			
 		}
 #pragma endregion
 		
